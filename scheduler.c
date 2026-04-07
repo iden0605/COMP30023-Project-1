@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "queue.h"
 
@@ -10,10 +11,12 @@ void scheduler_run(Proc *procs, int nproc, const SchedConfig *cfg) {
         return;
     }
 
-    // Initialise MLFQ with one queue and quantum
-    Queue q0;
-    q_init(&q0);
-    uint32_t quantum0 = cfg->quanta[0];
+    // Initialise one queue per priority level
+    int n = cfg->n_levels;
+    Queue *queues = malloc(n * sizeof(Queue));
+    for (int i = 0; i < n; i++) {
+        q_init(&queues[i]);
+    }
 
     // Simulation states
     int curr_running = -1;
@@ -35,26 +38,66 @@ void scheduler_run(Proc *procs, int nproc, const SchedConfig *cfg) {
                 curr_running = -1;
             }
             else if (p->quantum_left == 0) {
-                // Quantum exhausted, preempt and reinsert at back of queue
-                printf("%u,PREEMPTED,process=%s,queue=0,remaining-quantum=0,reason=quantum\n",
-                       t, p->pid);
-                q_push(&q0, prev_running);
+                // Quantum exhausted, demote process by 1 level
+                int old_level = p->level;
+                printf("%u,PREEMPTED,process=%s,queue=%d,remaining-quantum=0,reason=quantum\n",
+                       t, p->pid, old_level);
+
+                if (p->level < n - 1) {
+                    p->level++;
+                }
+                
+                // Insert demoted process at the back of the next queue
+                q_push(&queues[p->level], prev_running);
                 curr_running = -1;
             }
         }
 
-        // Add new arrived processes
+        // Add new arrived processes to highest priority queue
         while (next_arr < nproc && procs[next_arr].arrival == t) {
-            q_push(&q0, next_arr++);
+            procs[next_arr].level = 0;
+            q_push(&queues[0], next_arr++);
         }
 
-        // Pick process from the head of the queue if CPU is idle
-        if (curr_running < 0 && !q_empty(&q0)) {
-            curr_running = q_pop(&q0);
-            // Restart quantum for this process
-            procs[curr_running].quantum_left = quantum0;
-            printf("%u,RUNNING,process=%s,queue=0,remaining-cpu=%u,remaining-quantum=%u\n",
-                   t, procs[curr_running].pid, procs[curr_running].cpu_left, procs[curr_running].quantum_left);
+        // Priority preemption: a higher-priority queue became ready while a process was running
+        if (curr_running >= 0) {
+            Proc *p = &procs[curr_running];
+
+            // Check queues with higher priority than this process's level
+            int has_higher = 0;
+            for (int i = 0; i < p->level; i++) {
+                if (!q_empty(&queues[i])) {
+                    has_higher = 1;
+                    break;
+                }
+            }
+
+            // Higher-priority process found, preempt the current one
+            if (has_higher) {
+                // No quantum_left reset, resumes with the same slice later
+                printf("%u,PREEMPTED,process=%s,queue=%d,remaining-quantum=%u,reason=priority\n",
+                       t, p->pid, p->level, p->quantum_left);
+                q_push(&queues[p->level], curr_running);
+                curr_running = -1;
+            }
+        }
+
+        // Pick process from the highest priority non-empty queue
+        if (curr_running < 0) {
+            for (int i = 0; i < n; i++) {
+                if (!q_empty(&queues[i])) {
+                    curr_running = q_pop(&queues[i]);
+                    Proc *p = &procs[curr_running];
+
+                    // Reset quantum if used up
+                    if (p->quantum_left == 0) {
+                        p->quantum_left = cfg->quanta[p->level];
+                    }
+                    printf("%u,RUNNING,process=%s,queue=%d,remaining-cpu=%u,remaining-quantum=%u\n",
+                           t, p->pid, p->level, p->cpu_left, p->quantum_left);
+                    break;
+                }
+            }
         }
 
         // Update running process
@@ -69,7 +112,11 @@ void scheduler_run(Proc *procs, int nproc, const SchedConfig *cfg) {
 
     print_statistics(procs, nproc);
 
-    q_free(&q0);
+    // Cleanup queues
+    for (int i = 0; i < n; i++) {
+        q_free(&queues[i]);
+    }
+    free(queues);
 }
 
 void print_statistics(const Proc *procs, int nproc) {
