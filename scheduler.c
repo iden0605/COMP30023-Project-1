@@ -80,7 +80,7 @@ void print_statistics(const Proc *procs, int nproc) {
     // Sum turnaround and waiting times of all processes
     for (int i = 0; i < nproc; i++) {
         uint64_t turn = (uint64_t)procs[i].finish_time - procs[i].arrival;
-        uint64_t wait = turn - procs[i].cpu_total;
+        uint64_t wait = turn - procs[i].cpu_total - procs[i].io_total;
         sum_turn += turn;
         sum_wait += wait;
 

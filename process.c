@@ -70,9 +70,12 @@ Proc *procs_load(const char *fname, int *n) {
 
             uint32_t v = (uint32_t)strtoul(tok, NULL, 10);
             p->bursts[p->nbursts++] = v;
-            // Odd bursts are CPU bursts, sum for total CPU time
+            // Odd bursts are CPU, even bursts are I/O.
             if (p->nbursts % 2 == 1) {
                 p->cpu_total += v;
+            }
+            else {
+                p->io_total += v;
             }
         }
 

@@ -16,6 +16,7 @@
  *  quantum_left - remaining quantum while running
  *  finish_time  - tick when the process is finished
  *  cpu_total    - sum of all CPU bursts
+ *  io_total     - sum of all I/O bursts
  */
 typedef struct {
     char pid[PID_BUF];
@@ -26,6 +27,7 @@ typedef struct {
     uint32_t quantum_left;
     uint32_t finish_time;
     uint64_t cpu_total;
+    uint64_t io_total;
 } Proc;
 
 /* Read processes from 'fname' into an array.
