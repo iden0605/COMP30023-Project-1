@@ -38,6 +38,7 @@ void scheduler_run(Proc *procs, int nproc, const SchedConfig *config) {
         handle_prev_running(&s);
         handle_io_completions(&s);
         add_arrivals(&s);
+        apply_boost(&s);
         try_priority_preempt(&s);
         select_next_process(&s);
         update_tick(&s);
@@ -153,6 +154,76 @@ void add_arrivals(SchedState *s) {
         s->procs[s->next_arrival].level = 0;
         s->procs[s->next_arrival].state = PROC_READY;
         q_push(&s->queues[0], s->next_arrival++);
+    }
+}
+
+void apply_boost(SchedState *s) {
+    // Skip if boosting disabled
+    if (!s->config->has_boost) {
+        return;
+    }
+    // Skip if not on a boost tick
+    if (s->t == 0 || s->t % s->config->boost_k != 0) {
+        return;
+    }
+    // Skip if all processes finished
+    if (s->finished == s->nproc) {
+        return;
+    }
+
+    printf("%u,BOOST\n", s->t);
+
+    // Preempt the running process
+    if (s->curr_running >= 0) {
+        Proc *p = &s->procs[s->curr_running];
+        printf("%u,PREEMPTED,process=%s,queue=%d,remaining-quantum=%u,reason=boosting\n",
+               s->t, p->pid, p->level, p->quantum_left);
+        p->state = PROC_READY;
+        s->curr_running = -1;
+    }
+
+    // Empty every queue
+    for (int i = 0; i < s->n; i++) {
+        while (!q_empty(&s->queues[i])) {
+            q_pop(&s->queues[i]);
+        }
+    }
+
+    // Mark READY process with -1 for insertion
+    for (int i = 0; i < s->nproc; i++) {
+        if (s->procs[i].state == PROC_READY) {
+            s->procs[i].level = -1;
+        }
+    }
+
+    // Selection sort, insert READY processes into Q0 in increasing PID order
+    while (1) {
+        int best = -1;
+        for (int i = 0; i < s->nproc; i++) {
+            if (s->procs[i].level != -1) {
+                continue;
+            }
+            if (best < 0 || strcmp(s->procs[i].pid, s->procs[best].pid) < 0) {
+                best = i;
+            }
+        }
+        if (best < 0) {
+            break;
+        }
+
+        // Move the process to Q0, reset quantum
+        Proc *p = &s->procs[best];
+        p->level = 0;
+        p->quantum_left = 0;
+        q_push(&s->queues[0], best);
+    }
+
+    // Reset BLOCKED processes to Q0
+    for (int i = 0; i < s->nproc; i++) {
+        if (s->procs[i].state == PROC_BLOCKED) {
+            s->procs[i].level = 0;
+            s->procs[i].quantum_left = 0;
+        }
     }
 }
 
