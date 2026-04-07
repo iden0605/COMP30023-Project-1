@@ -1,0 +1,9 @@
+0,RUNNING,process=P1,queue=0,remaining-cpu=5,remaining-quantum=2
+2,PREEMPTED,process=P1,queue=0,remaining-quantum=0,reason=quantum
+2,RUNNING,process=P1,queue=0,remaining-cpu=3,remaining-quantum=2
+4,PREEMPTED,process=P1,queue=0,remaining-quantum=0,reason=quantum
+4,RUNNING,process=P1,queue=0,remaining-cpu=1,remaining-quantum=2
+5,FINISHED,process=P1
+Average turnaround time 5
+Average waiting time 0
+Maximum waiting time 0

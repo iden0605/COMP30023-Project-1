@@ -1,0 +1,23 @@
+0,RUNNING,process=AA,queue=0,remaining-cpu=3,remaining-quantum=3
+3,BLOCKED,process=AA
+3,RUNNING,process=AAA,queue=0,remaining-cpu=11,remaining-quantum=3
+6,PREEMPTED,process=AAA,queue=0,remaining-quantum=0,reason=quantum
+6,UNBLOCKED,queue=1,processes=AA
+6,BOOST
+6,RUNNING,process=A,queue=0,remaining-cpu=3,remaining-quantum=3
+9,FINISHED,process=A
+9,RUNNING,process=AA,queue=0,remaining-cpu=2,remaining-quantum=3
+11,FINISHED,process=AA
+11,RUNNING,process=AAA,queue=0,remaining-cpu=8,remaining-quantum=3
+12,BOOST
+12,PREEMPTED,process=AAA,queue=0,remaining-quantum=2,reason=boosting
+12,RUNNING,process=AAA,queue=0,remaining-cpu=7,remaining-quantum=3
+15,PREEMPTED,process=AAA,queue=0,remaining-quantum=0,reason=quantum
+15,RUNNING,process=AAA,queue=1,remaining-cpu=4,remaining-quantum=3
+18,PREEMPTED,process=AAA,queue=1,remaining-quantum=0,reason=quantum
+18,BOOST
+18,RUNNING,process=AAA,queue=0,remaining-cpu=1,remaining-quantum=3
+19,FINISHED,process=AAA
+Average turnaround time 11
+Average waiting time 3
+Maximum waiting time 6

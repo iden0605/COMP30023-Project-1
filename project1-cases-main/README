@@ -1,0 +1,38 @@
+COMP30023 2026 - Project 1 Cases
+
+./schedule -f cases/task1/empty.txt -n 1 -q 2 | diff - cases/task1/empty.txt
+./schedule -f cases/task1/1.txt -n 1 -q 10 | diff - cases/task1/1-less.out
+./schedule -f cases/task1/1.txt -n 1 -q 4 | diff - cases/task1/1-equal.out
+./schedule -f cases/task1/1-expire.txt -n 1 -q 2 | diff - cases/task1/1-expire.out
+./schedule -f cases/task1/2.txt -n 1 -q 2 | diff - cases/task1/2.out
+./schedule -f cases/task1/c1-1.txt -n 1 -q 2 | diff - cases/task1/c1-1.out
+./schedule -f cases/task1/c1-3.txt -n 1 -q 2 | diff - cases/task1/c1-3.out
+
+./schedule -f cases/task2/demotion1.txt -n 2 -q 2,2 | diff - cases/task2/demotion1.out
+./schedule -f cases/task2/demotion2.txt -n 5 -q 2,2,2,2,2 | diff - cases/task2/demotion2.out
+./schedule -f cases/task2/priority1.txt -n 2 -q 2,2 | diff - cases/task2/priority1.out
+./schedule -f cases/task2/mlfq-no-io.txt -n 2 -q 2,3 | diff - cases/task2/mlfq-no-io.out
+./schedule -f cases/task2/c2-1.txt -n 2 -q 2,7 | diff - cases/task2/c2-1.out
+
+./schedule -f cases/spec.txt -n 3 -q 2,4,8 | diff - cases/task3/spec.out
+./schedule -f cases/task3/io-execute.txt -n 2 -q 4,4 | diff - cases/task3/io-execute.out
+./schedule -f cases/task3/io-execute.txt -n 2 -q 2,2 | diff - cases/task3/io-execute-demote.out
+./schedule -f cases/task3/reinsert-1.txt -n 2 -q 3,3 | diff - cases/task3/reinsert-1.out
+./schedule -f cases/task3/c3-06.txt -n 2 -q 3,4 | diff - cases/task3/c3-06.out
+./schedule -f cases/task3/c3-01.txt -n 2 -q 3,8 | diff - cases/task3/c3-01.out
+./schedule -f cases/task3/c3-04.txt -n 2 -q 3,4 | diff - cases/task3/c3-04.out
+./schedule -f cases/task3/c3-05.txt -n 2 -q 2,4 | diff - cases/task3/c3-05.out
+./schedule -f cases/task3/c3-09.txt -n 2 -q 2,2 | diff - cases/task3/c3-09.out
+./schedule -f cases/task3/c3-02.txt -n 2 -q 2,4 | diff - cases/task3/c3-02.out
+./schedule -f cases/task3/c3-07.txt -n 2 -q 2,4 | diff - cases/task3/c3-07.out
+
+./schedule -f cases/spec.txt -n 3 -q 2,4,8 -b 20 | diff - cases/task4/spec.out
+./schedule -f cases/task4/boost.txt -n 2 -q 2,4 -b 8 | diff - cases/task4/boost-running.out
+./schedule -f cases/task4/boost.txt -n 2 -q 2,4 -b 10 | diff - cases/task4/boost-ready.out
+./schedule -f cases/task4/boost.txt -n 2 -q 2,4 -b 5 | diff - cases/task4/boost-blocked.out
+./schedule -f cases/task4/c4-15.txt -n 2 -q 3,3 -b 6 | diff - cases/task4/c4-15.out
+
+./schedule -f cases/task1/2.txt -n 1 -q 2 | diff - cases/task1/2.out
+./schedule -f cases/task2/mlfq-no-io.txt -n 2 -q 2,3 | diff - cases/task2/mlfq-no-io.out
+./schedule -f cases/spec.txt -n 3 -q 2,4,8 | diff - cases/task3/spec.out
+./schedule -f cases/spec.txt -n 3 -q 2,4,8 -b 20 | diff - cases/task4/spec.out

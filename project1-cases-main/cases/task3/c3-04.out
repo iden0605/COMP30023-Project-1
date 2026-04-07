@@ -1,0 +1,10 @@
+0,RUNNING,process=P1,queue=0,remaining-cpu=2,remaining-quantum=3
+2,BLOCKED,process=P1
+2,RUNNING,process=P2,queue=0,remaining-cpu=2,remaining-quantum=3
+4,FINISHED,process=P2
+4,UNBLOCKED,queue=0,processes=P1
+4,RUNNING,process=P1,queue=0,remaining-cpu=2,remaining-quantum=3
+6,FINISHED,process=P1
+Average turnaround time 4
+Average waiting time 0
+Maximum waiting time 0
