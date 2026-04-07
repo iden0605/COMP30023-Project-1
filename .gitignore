@@ -1,0 +1,4 @@
+schedule
+*.o
+.DS_Store
+.vscode/
